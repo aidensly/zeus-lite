@@ -1,0 +1,86 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #050816;
+  color: #e5e7eb;
+}
+
+.container {
+  max-width: 720px;
+  margin: 60px auto;
+  padding: 32px;
+  background: #0b1020;
+  border-radius: 14px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin-top: 8px;
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.status-bar {
+  margin: 20px 0 28px;
+  padding: 10px 14px;
+  background: #0f172a;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #cbd5f5;
+  border: 1px solid #1e293b;
+}
+
+.generate-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.generate-btn:hover {
+  background: #111827;
+  border-color: #475569;
+}
+
+.generate-btn:disabled {
+  background: #020617;
+  border-color: #1e293b;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.output-card {
+  margin-top: 28px;
+  padding: 22px;
+  background: #020617;
+  border-radius: 12px;
+  border: 1px solid #1e293b;
+  white-space: pre-line;
+  min-height: 160px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #e5e7eb;
+}
+
+footer {
+  margin-top: 32px;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
