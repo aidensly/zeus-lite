@@ -44,15 +44,25 @@ function wait(ms) {
 
 function loadUsage() {
   if (isAdmin) return { date: getToday(), used: 0 };
+
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return { date: getToday(), used: 0 };
-  const data = JSON.parse(raw);
-  return data.date === getToday() ? data : { date: getToday(), used: 0 };
+  const today = getToday();
+
+  if (!raw) return { date: today, used: 0 };
+
+  try {
+    const data = JSON.parse(raw);
+    if (data.date !== today) return { date: today, used: 0 };
+    if (typeof data.used !== "number") return { date: today, used: 0 };
+    return data;
+  } catch {
+    return { date: today, used: 0 };
+  }
 }
 
-function saveUsage(u) {
+function saveUsage(usage) {
   if (!isAdmin) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(usage));
   }
 }
 
@@ -63,25 +73,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const modeLabel = document.getElementById("modeLabel");
   const statusNote = document.getElementById("statusNote");
 
+  if (!btn || !output || !counter || !modeLabel || !statusNote) return;
+
   let usage = loadUsage();
   let index = usage.used;
-
-  function updateUI() {
-    if (isAdmin) {
-      modeLabel.textContent = "Admin mode";
-      counter.textContent = "Unlimited generations";
-      statusNote.textContent = "Daily limits disabled.";
-      btn.disabled = false;
-      return;
-    }
-
-    const remaining = DAILY_LIMIT - usage.used;
-    counter.textContent = `Generations remaining today: ${remaining} / ${DAILY_LIMIT}`;
-    statusNote.textContent = "Each generation highlights one product rising today.";
-
-    btn.disabled = remaining <= 0;
-    btn.textContent = remaining <= 0 ? "Daily limit reached" : "Generate product";
-  }
 
   updateUI();
 
@@ -89,27 +84,58 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!isAdmin && usage.used >= DAILY_LIMIT) return;
 
     btn.disabled = true;
-    let step = 0;
-    output.textContent = ANALYSIS_STEPS[step];
+    let stepIndex = 0;
+    output.textContent = ANALYSIS_STEPS[stepIndex];
 
     const loop = setInterval(() => {
-      step = (step + 1) % ANALYSIS_STEPS.length;
-      output.textContent = ANALYSIS_STEPS[step];
+      stepIndex = (stepIndex + 1) % ANALYSIS_STEPS.length;
+      output.textContent = ANALYSIS_STEPS[stepIndex];
     }, 1500);
 
-    await wait(6000 + Math.random() * 2000);
+    const delay = Math.floor(Math.random() * 2000) + 6000;
+    await wait(delay);
     clearInterval(loop);
 
-    const p = ZEUS_LITE_PRODUCTS[index % ZEUS_LITE_PRODUCTS.length];
+    const product = ZEUS_LITE_PRODUCTS[index % ZEUS_LITE_PRODUCTS.length];
+
     output.textContent =
-      `Product: ${p.product}\nProfit per sale: ${p.profit}\nWhy it’s trending: ${p.trending}\nBest marketing angle: ${p.angle}\nLikelihood to purchase: ${p.likelihood}`;
+      "Product: " + product.product + "\n" +
+      "Profit per sale: " + product.profit + "\n" +
+      "Why it’s trending: " + product.trending + "\n" +
+      "Best marketing angle: " + product.angle + "\n" +
+      "Likelihood to purchase: " + product.likelihood;
 
     if (!isAdmin) {
-      usage.used++;
+      usage.used += 1;
+      usage.date = getToday();
       saveUsage(usage);
     }
 
-    index++;
+    index += 1;
     updateUI();
   });
+
+  function updateUI() {
+    if (isAdmin) {
+      modeLabel.textContent = "Admin mode";
+      counter.textContent = "Unlimited generations on this device";
+      statusNote.textContent = "Demo view. Daily limits are disabled.";
+      btn.disabled = false;
+      btn.textContent = "Generate product";
+      return;
+    }
+
+    const remaining = DAILY_LIMIT - usage.used;
+    modeLabel.textContent = "Zeus Lite";
+    counter.textContent = "Generations remaining today: " + remaining + " / " + DAILY_LIMIT;
+
+    if (remaining <= 0) {
+      btn.disabled = true;
+      btn.textContent = "Daily limit reached";
+    } else {
+      btn.disabled = false;
+      btn.textContent = "Generate product";
+    }
+  }
 });
+
