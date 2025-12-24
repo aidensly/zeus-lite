@@ -39,9 +39,7 @@ function todayKey() {
 function loadUsage() {
   const raw = localStorage.getItem("zeus_lite_usage");
   const today = todayKey();
-
   if (!raw) return { date: today, used: 0 };
-
   const data = JSON.parse(raw);
   return data.date === today ? data : { date: today, used: 0 };
 }
@@ -54,9 +52,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("generateBtn");
   const output = document.getElementById("output");
   const counter = document.getElementById("counter");
-
   let usage = loadUsage();
   let index = usage.used;
+
+  function updateUI() {
+    const remaining = DAILY_LIMIT - usage.used;
+    counter.textContent = `Generations remaining today: ${remaining} / ${DAILY_LIMIT}`;
+    if (remaining <= 0) {
+      btn.disabled = true;
+      btn.textContent = "Daily limit reached";
+    } else {
+      btn.disabled = false;
+      btn.textContent = "Generate product";
+    }
+  }
 
   updateUI();
 
@@ -78,9 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setTimeout(() => {
       clearInterval(interval);
-
       const p = PRODUCTS[index] || PRODUCTS[PRODUCTS.length - 1];
-
       output.textContent =
         `Product: ${p.product}\n` +
         `Profit per sale: ${p.profit}\n` +
@@ -92,21 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
       usage.date = todayKey();
       saveUsage(usage);
       index++;
-
       updateUI();
     }, delay);
   });
-
-  function updateUI() {
-    const remaining = DAILY_LIMIT - usage.used;
-    counter.textContent = `Generations remaining today: ${remaining} / ${DAILY_LIMIT}`;
-
-    if (remaining <= 0) {
-      btn.disabled = true;
-      btn.textContent = "Daily limit reached";
-    } else {
-      btn.textContent = "Generate product";
-      btn.disabled = false;
-    }
-  }
 });
